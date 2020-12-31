@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
+const pool = require("./models/db.js");
 
 const app = express();
 
@@ -16,24 +17,22 @@ app.get("/", (req, res) => {
 });
 
 
-const mysql = require('mysql2');
+  async function getTrans(){
+  const connection = await pool.getConnection();
 
-const connection = mysql.createConnection({
-  host: process.env.HOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: process.env.DB
-});
-
-
-
-connection.query(
-  "select * from stocks where ticker like 'ACB'",
-  function(err, results, fields) {
-    console.log(results); // results contains rows returned by server
-    console.log(fields); // fields contains extra meta data about results, if available
+  try { 
+      const [rows, fields] = await connection.execute('select * from transactions where dateseq = ? and ticker like ?',  [20201201, 'acb']);
+      console.log(rows);
+ 
+  } catch (err) {
+      console.error("Error getting data:", err);
   }
-);
+  }
+
+  getTrans();
+
+  
+
 
 
 
